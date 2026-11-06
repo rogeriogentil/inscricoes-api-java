@@ -11,6 +11,12 @@ public interface RepositorioPalestras {
 
     Optional<Palestra> buscarPorId(Long id);
 
+    /**
+     * Busca a palestra bloqueando a linha até o fim da transação. Serializa inscrições e cancelamentos
+     * da mesma palestra.
+     */
+    Optional<Palestra> buscarParaAtualizacao(Long id);
+
     /** Todas as palestras, ordenadas por identificador. */
     List<Palestra> listarTodas();
 }

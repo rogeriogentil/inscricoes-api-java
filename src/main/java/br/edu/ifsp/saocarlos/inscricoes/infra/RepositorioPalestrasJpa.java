@@ -5,6 +5,7 @@ import br.edu.ifsp.saocarlos.inscricoes.dominio.RepositorioPalestras;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +26,11 @@ public class RepositorioPalestrasJpa implements RepositorioPalestras, PanacheRep
     @Override
     public Optional<Palestra> buscarPorId(Long id) {
         return findByIdOptional(id).map(RepositorioPalestrasJpa::paraDominio);
+    }
+
+    @Override
+    public Optional<Palestra> buscarParaAtualizacao(Long id) {
+        return findByIdOptional(id, LockModeType.PESSIMISTIC_WRITE).map(RepositorioPalestrasJpa::paraDominio);
     }
 
     @Override

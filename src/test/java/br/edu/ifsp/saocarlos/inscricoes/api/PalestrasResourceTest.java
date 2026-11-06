@@ -31,10 +31,7 @@ class PalestrasResourceTest {
 
     @BeforeEach
     void limparBanco() {
-        QuarkusTransaction.requiringNew().run(() -> {
-            entityManager.createQuery("delete from InscricaoEntidade").executeUpdate();
-            entityManager.createQuery("delete from PalestraEntidade").executeUpdate();
-        });
+        ApoioApi.limparBanco(entityManager);
     }
 
     private static Map<String, Object> palestraValida(int totalVagas) {
@@ -46,10 +43,7 @@ class PalestrasResourceTest {
     }
 
     private static int criarPalestra(int totalVagas) {
-        return given().contentType(ContentType.JSON).body(palestraValida(totalVagas))
-                .when().post("/palestras")
-                .then().statusCode(201)
-                .extract().path("id");
+        return ApoioApi.criarPalestra(totalVagas);
     }
 
     private void inserirInscricoes(int palestraId, SituacaoInscricao situacao, int quantidade) {
