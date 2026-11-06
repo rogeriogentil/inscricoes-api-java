@@ -9,6 +9,7 @@ import br.edu.ifsp.saocarlos.inscricoes.dominio.excecao.PalestraNaoEncontradaExc
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -35,7 +36,7 @@ public class PalestrasResource {
     RepositorioInscricoes inscricoes;
 
     @POST
-    public Response criar(@Valid NovaPalestraRequisicao requisicao, @Context UriInfo uriInfo) {
+    public Response criar(@Valid @NotNull(message = "Corpo da requisição é obrigatório.") NovaPalestraRequisicao requisicao, @Context UriInfo uriInfo) {
         Palestra palestra = palestras.salvar(
                 Palestra.criar(requisicao.titulo(), requisicao.descricao(), requisicao.totalVagas()));
         return Response.created(uriInfo.getAbsolutePathBuilder().path(String.valueOf(palestra.getId())).build())

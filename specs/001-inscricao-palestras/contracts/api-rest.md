@@ -2,7 +2,7 @@
 
 Base: `http://localhost:8080`. Todo corpo é `application/json; charset=UTF-8`. Os nomes de campos estão em PT-BR (Princípio III).
 
-> A Fase 0 não expõe nenhum endpoint de negócio. Este contrato é implementado nas Fases 1–3.
+> Este contrato foi implementado nas Fases 1–3; a Fase 4 uniformizou o formato de erro.
 
 ## Formato de erro (todas as recusas, FR-014)
 
@@ -20,6 +20,9 @@ Base: `http://localhost:8080`. Todo corpo é `application/json; charset=UTF-8`. 
 | Dados inválidos (palestra ou inscrição) | 400 | `Dados inválidos.` (+ `erros` por campo) |
 | Palestra não encontrada | 404 | `Palestra não encontrada.` |
 | Inscrição ativa inexistente para cancelar | 404 | `Não há inscrição ativa para este e-mail nesta palestra.` |
+| Corpo ausente, JSON malformado ou de tipo incompatível | 400 | `Dados inválidos.` (sem `erros` por campo para JSON malformado) |
+| `Content-Type` diferente de JSON | 415 | `Tipo de conteúdo não suportado. Use application/json.` |
+| Id de palestra não numérico ou rota desconhecida | 404 | `Recurso não encontrado.` |
 | Palestra lotada | 409 | `Não há vagas disponíveis nesta palestra.` |
 | Participante já inscrito | 409 | `Participante já possui inscrição ativa nesta palestra.` |
 
@@ -67,7 +70,7 @@ Requisição:
 
 - `400` nome vazio ou e-mail inválido (US2-4).
 - `404` palestra inexistente (US2-5).
-- `409` lotada (US2-2) ou já inscrito (US2-3).
+- `409` lotada (US2-2) ou já inscrito (US2-3). Se o e-mail já tem inscrição ativa, a resposta é "já inscrito" mesmo com a palestra lotada.
 
 ### `DELETE /palestras/{id}/inscricoes?email={email}`: cancelar (FR-011, FR-012)
 

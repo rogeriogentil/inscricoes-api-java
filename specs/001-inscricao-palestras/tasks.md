@@ -126,12 +126,12 @@
 
 **Objetivo**: erros uniformes (FR-014), desempenho (SC-006), persistência (FR-015) e quickstart completo.
 
-- [ ] T047 [P] Teste em `T/api/ErrosTest.java` e ajuste em `B/api/erro/`: corpo JSON malformado ou `Content-Type` inválido nos três endpoints POST/DELETE responde no formato `{ "mensagem", "erros" }` em PT-BR, e toda recusa da spec traz motivo (SC-004)
-- [ ] T048 [P] Teste em `T/api/ListagemDesempenhoTest.java`: 200 palestras com inscrições variadas; `GET /palestras` responde em até 2 s e os `vagasDisponiveis` batem com `totalVagas` menos as ativas de cada uma (SC-003, SC-006)
-- [ ] T049 Validar a persistência (FR-015) seguindo o quickstart §2: `./mvnw quarkus:dev`, criar palestra e inscrição, reiniciar e confirmar que `GET /palestras` mantém os dados; conferir que `data/` está no `.gitignore`
-- [ ] T050 Executar todo o roteiro do quickstart §2 (os `curl` de US1, US2 e US3) e comparar cada status HTTP com o esperado
-- [ ] T051 Revisão final de conformidade: nomes e mensagens em PT-BR, `dominio` livre de framework, nenhuma abstração sem uso (Princípio II) e `specs/001-inscricao-palestras/` coerente com o código entregue
-- [ ] T052 **Fechamento da Fase 4**: rodar `./mvnw verify`; exigir `BUILD SUCCESS` final com todos os testes verdes
+- [X] T047 [P] Teste em `T/api/ErrosTest.java` e ajuste em `B/api/erro/`: corpo JSON malformado ou `Content-Type` inválido nos três endpoints POST/DELETE responde no formato `{ "mensagem", "erros" }` em PT-BR, e toda recusa da spec traz motivo (SC-004)
+- [X] T048 [P] Teste em `T/api/ListagemDesempenhoTest.java`: 200 palestras com inscrições variadas; `GET /palestras` responde em até 2 s e os `vagasDisponiveis` batem com `totalVagas` menos as ativas de cada uma (SC-003, SC-006)
+- [X] T049 Validar a persistência (FR-015) seguindo o quickstart §2: `./mvnw quarkus:dev`, criar palestra e inscrição, reiniciar e confirmar que `GET /palestras` mantém os dados; conferir que `data/` está no `.gitignore`
+- [X] T050 Executar todo o roteiro do quickstart §2 (os `curl` de US1, US2 e US3) e comparar cada status HTTP com o esperado
+- [X] T051 Revisão final de conformidade: nomes e mensagens em PT-BR, `dominio` livre de framework, nenhuma abstração sem uso (Princípio II) e `specs/001-inscricao-palestras/` coerente com o código entregue
+- [X] T052 **Fechamento da Fase 4**: rodar `./mvnw verify`; exigir `BUILD SUCCESS` final com todos os testes verdes
 
 ---
 
@@ -205,5 +205,5 @@ Task: "DTOs em B/api/dto/ e mapeadores de erro em B/api/erro/"
 
 ## Phase 6: Convergence
 
-- [ ] T054 Fazer `POST /palestras` e `POST /palestras/{id}/inscricoes` sem corpo (ou com corpo vazio) responderem 400 `Dados inválidos.` no formato `{ "mensagem", "erros" }` em vez de 500, tratando o `requisicao` nulo nos recursos em `B/api/` (ou com `@NotNull` no parâmetro), e cobrir os dois casos em `T/api/ErrosTest.java` (T047), per FR-014 e SC-004 (partial)
-- [ ] T055 Fazer id de palestra não numérico (`GET /palestras/abc`, `POST`/`DELETE /palestras/abc/inscricoes`) responder no formato `{ "mensagem", "erros" }` em PT-BR (hoje 404 com corpo vazio), com `ExceptionMapper` em `B/api/erro/` e caso em `T/api/ErrosTest.java`, per FR-014 (partial)
+- [X] T054 Fazer `POST /palestras` e `POST /palestras/{id}/inscricoes` sem corpo (ou com corpo vazio) responderem 400 `Dados inválidos.` no formato `{ "mensagem", "erros" }` em vez de 500, tratando o `requisicao` nulo nos recursos em `B/api/` (ou com `@NotNull` no parâmetro), e cobrir os dois casos em `T/api/ErrosTest.java` (T047), per FR-014 e SC-004 (partial)
+- [X] T055 Fazer id de palestra não numérico (`GET /palestras/abc`, `POST`/`DELETE /palestras/abc/inscricoes`) responder no formato `{ "mensagem", "erros" }` em PT-BR (hoje 404 com corpo vazio), com `ExceptionMapper` em `B/api/erro/` e caso em `T/api/ErrosTest.java`, per FR-014 (partial)

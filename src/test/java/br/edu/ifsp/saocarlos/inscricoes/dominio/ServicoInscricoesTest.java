@@ -84,6 +84,15 @@ class ServicoInscricoesTest {
     }
 
     @Test
+    void participanteJaInscritoEmPalestraLotadaRecebeAMensagemDeJaInscrito() {
+        Long palestraId = palestraComVagas(1);
+        servico.inscrever(palestraId, "Maria", "maria@exemplo.com");
+
+        assertThrows(ParticipanteJaInscritoException.class,
+                () -> servico.inscrever(palestraId, "Maria", "maria@exemplo.com"));
+    }
+
+    @Test
     void mesmoEmailPodeSeInscreverEmOutraPalestra() {
         Long primeira = palestraComVagas(5);
         Long segunda = palestraComVagas(5);
@@ -177,7 +186,8 @@ class ServicoInscricoesTest {
 
         @Override
         public Palestra salvar(Palestra palestra) {
-            Palestra salva = palestra.comId((long) porId.size() + 1);
+            Palestra salva = Palestra.restaurar((long) porId.size() + 1, palestra.getTitulo(), palestra.getDescricao(),
+                    palestra.getTotalVagas());
             porId.put(salva.getId(), salva);
             return salva;
         }
@@ -203,7 +213,9 @@ class ServicoInscricoesTest {
 
         @Override
         public Inscricao salvar(Inscricao inscricao) {
-            Inscricao salva = inscricao.getId() == null ? inscricao.comId((long) todas.size() + 1) : inscricao;
+            Inscricao salva = inscricao.getId() == null ? Inscricao.restaurar((long) todas.size() + 1, inscricao.getPalestraId(), inscricao.getNome(),
+                    inscricao.getEmail(), inscricao.getDataHoraInscricao(), inscricao.getSituacao(),
+                    inscricao.getDataHoraCancelamento()) : inscricao;
             todas.removeIf(existente -> existente.getId().equals(salva.getId()));
             todas.add(salva);
             return salva;

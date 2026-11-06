@@ -7,6 +7,7 @@ import br.edu.ifsp.saocarlos.inscricoes.dominio.ServicoInscricoes;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.POST;
@@ -28,7 +29,7 @@ public class InscricoesResource {
     /** A transação cobre todo o método para que o bloqueio da palestra dure até o commit. */
     @POST
     @Transactional
-    public Response inscrever(@PathParam("id") Long palestraId, @Valid NovaInscricaoRequisicao requisicao) {
+    public Response inscrever(@PathParam("id") Long palestraId, @Valid @NotNull(message = "Corpo da requisição é obrigatório.") NovaInscricaoRequisicao requisicao) {
         Inscricao inscricao = servico.inscrever(palestraId, requisicao.nome(), requisicao.email());
         return Response.status(Response.Status.CREATED).entity(InscricaoResposta.de(inscricao)).build();
     }

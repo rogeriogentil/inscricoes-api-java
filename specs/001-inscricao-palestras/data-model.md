@@ -2,7 +2,7 @@
 
 Modelo de domínio (pacote `br.edu.ifsp.saocarlos.inscricoes.dominio`, POJOs sem framework) e seu mapeamento de persistência (pacote `infra`). Decisões em [research.md](./research.md).
 
-> Fase 0 não cria nenhuma destas classes; elas chegam nas Fases 1–3 do [plan.md](./plan.md).
+> Estas classes foram implementadas nas Fases 1–3 do [plan.md](./plan.md).
 
 ## Entidades de domínio
 

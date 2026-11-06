@@ -71,6 +71,16 @@ class InscricoesResourceTest {
     }
 
     @Test
+    void participanteJaInscritoEmPalestraLotadaRecebeAMensagemDeJaInscrito() {
+        int id = ApoioApi.criarPalestra(1);
+        inscrever(id, "Maria", "maria@exemplo.com").statusCode(201);
+
+        inscrever(id, "Maria", "maria@exemplo.com")
+                .statusCode(409)
+                .body("mensagem", equalTo("Participante já possui inscrição ativa nesta palestra."));
+    }
+
+    @Test
     void recusaDadosInvalidosComErrosPorCampo() {
         int id = ApoioApi.criarPalestra(5);
 

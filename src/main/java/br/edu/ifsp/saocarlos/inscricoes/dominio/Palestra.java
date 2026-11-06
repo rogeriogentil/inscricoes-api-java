@@ -47,11 +47,6 @@ public final class Palestra {
         return new Palestra(id, titulo, descricao, totalVagas);
     }
 
-    /** Devolve a mesma palestra com o identificador atribuído pela persistência. */
-    public Palestra comId(Long novoId) {
-        return new Palestra(novoId, titulo, descricao, totalVagas);
-    }
-
     public long vagasDisponiveis(long inscricoesAtivas) {
         return totalVagas - inscricoesAtivas;
     }

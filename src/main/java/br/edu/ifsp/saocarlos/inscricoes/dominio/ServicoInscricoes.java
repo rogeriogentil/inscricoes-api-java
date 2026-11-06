@@ -25,18 +25,18 @@ public class ServicoInscricoes {
      *
      * @throws br.edu.ifsp.saocarlos.inscricoes.dominio.excecao.DadosInvalidosException nome vazio ou e-mail inválido
      * @throws PalestraNaoEncontradaException palestra inexistente
+     * @throws ParticipanteJaInscritoException o e-mail já tem inscrição ativa na palestra (verificado antes da lotação)
      * @throws PalestraLotadaException não há vagas
-     * @throws ParticipanteJaInscritoException o e-mail já tem inscrição ativa na palestra
      */
     public Inscricao inscrever(Long palestraId, String nome, String email) {
         Inscricao nova = Inscricao.criar(palestraId, nome, email, Instant.now());
         Palestra palestra = palestras.buscarParaAtualizacao(palestraId)
                 .orElseThrow(PalestraNaoEncontradaException::new);
-        if (!palestra.temVaga(inscricoes.contarAtivas(palestraId))) {
-            throw new PalestraLotadaException();
-        }
         if (inscricoes.buscarAtiva(palestraId, nova.getEmail()).isPresent()) {
             throw new ParticipanteJaInscritoException();
+        }
+        if (!palestra.temVaga(inscricoes.contarAtivas(palestraId))) {
+            throw new PalestraLotadaException();
         }
         return inscricoes.salvar(nova);
     }

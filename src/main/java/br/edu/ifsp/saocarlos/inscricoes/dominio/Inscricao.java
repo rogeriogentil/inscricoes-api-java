@@ -56,11 +56,6 @@ public final class Inscricao {
         return new Inscricao(id, palestraId, nome, email, dataHoraInscricao, situacao, dataHoraCancelamento);
     }
 
-    /** Devolve a mesma inscrição com o identificador atribuído pela persistência. */
-    public Inscricao comId(Long novoId) {
-        return new Inscricao(novoId, palestraId, nome, email, dataHoraInscricao, situacao, dataHoraCancelamento);
-    }
-
     /**
      * Devolve a inscrição cancelada (estado final, mantida como histórico).
      *
