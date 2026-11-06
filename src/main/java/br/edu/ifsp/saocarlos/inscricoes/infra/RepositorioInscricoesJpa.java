@@ -16,14 +16,17 @@ public class RepositorioInscricoesJpa implements RepositorioInscricoes, PanacheR
 
     @Override
     public Inscricao salvar(Inscricao inscricao) {
-        InscricaoEntidade entidade = new InscricaoEntidade();
+        boolean nova = inscricao.getId() == null;
+        InscricaoEntidade entidade = nova ? new InscricaoEntidade() : findById(inscricao.getId());
         entidade.palestra = getEntityManager().getReference(PalestraEntidade.class, inscricao.getPalestraId());
         entidade.nome = inscricao.getNome();
         entidade.email = inscricao.getEmail().getValor();
         entidade.dataHoraInscricao = inscricao.getDataHoraInscricao();
         entidade.situacao = inscricao.getSituacao();
         entidade.dataHoraCancelamento = inscricao.getDataHoraCancelamento();
-        persist(entidade);
+        if (nova) {
+            persist(entidade);
+        }
         return paraDominio(entidade);
     }
 

@@ -61,6 +61,18 @@ public final class Inscricao {
         return new Inscricao(novoId, palestraId, nome, email, dataHoraInscricao, situacao, dataHoraCancelamento);
     }
 
+    /**
+     * Devolve a inscrição cancelada (estado final, mantida como histórico).
+     *
+     * @throws IllegalStateException se a inscrição já estiver cancelada
+     */
+    public Inscricao cancelar(Instant agora) {
+        if (situacao != SituacaoInscricao.ATIVA) {
+            throw new IllegalStateException("Inscrição já cancelada.");
+        }
+        return new Inscricao(id, palestraId, nome, email, dataHoraInscricao, SituacaoInscricao.CANCELADA, agora);
+    }
+
     public Long getId() {
         return id;
     }

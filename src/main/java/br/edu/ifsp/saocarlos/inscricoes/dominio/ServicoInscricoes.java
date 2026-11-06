@@ -1,5 +1,6 @@
 package br.edu.ifsp.saocarlos.inscricoes.dominio;
 
+import br.edu.ifsp.saocarlos.inscricoes.dominio.excecao.InscricaoNaoEncontradaException;
 import br.edu.ifsp.saocarlos.inscricoes.dominio.excecao.PalestraLotadaException;
 import br.edu.ifsp.saocarlos.inscricoes.dominio.excecao.PalestraNaoEncontradaException;
 import br.edu.ifsp.saocarlos.inscricoes.dominio.excecao.ParticipanteJaInscritoException;
@@ -38,5 +39,20 @@ public class ServicoInscricoes {
             throw new ParticipanteJaInscritoException();
         }
         return inscricoes.salvar(nova);
+    }
+
+    /**
+     * Cancela a inscrição ativa do e-mail na palestra, liberando a vaga.
+     *
+     * @throws br.edu.ifsp.saocarlos.inscricoes.dominio.excecao.DadosInvalidosException e-mail inválido
+     * @throws PalestraNaoEncontradaException palestra inexistente
+     * @throws InscricaoNaoEncontradaException não há inscrição ativa para o e-mail
+     */
+    public Inscricao cancelar(Long palestraId, String email) {
+        Email emailNormalizado = Email.de(email);
+        palestras.buscarParaAtualizacao(palestraId).orElseThrow(PalestraNaoEncontradaException::new);
+        Inscricao ativa = inscricoes.buscarAtiva(palestraId, emailNormalizado)
+                .orElseThrow(InscricaoNaoEncontradaException::new);
+        return inscricoes.salvar(ativa.cancelar(Instant.now()));
     }
 }

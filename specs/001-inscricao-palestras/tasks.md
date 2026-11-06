@@ -105,18 +105,18 @@
 
 ### Testes da US3 (escrever primeiro; devem falhar)
 
-- [ ] T038 [P] [US3] Em `T/dominio/ServicoInscricoesTest.java`, casos de `cancelar`: inscrição ativa vira `CANCELADA` com `dataHoraCancelamento`; e-mail normalizado antes da busca; sem inscrição ativa → `InscricaoNaoEncontradaException`; segundo cancelamento → `InscricaoNaoEncontradaException` sem alterar vagas; palestra inexistente → `PalestraNaoEncontradaException`; reinscrição após cancelar cria nova `ATIVA` e mantém a antiga `CANCELADA` (FR-013)
-- [ ] T039 [P] [US3] Em `T/api/InscricoesResourceTest.java`, casos de `DELETE /palestras/{id}/inscricoes?email=`: 204 e vagas +1 (US3-1); palestra lotada volta a ter vaga e nova inscrição é aceita (US3-2, SC-005); 404 `Não há inscrição ativa para este e-mail nesta palestra.` sem inscrição e em cancelamento repetido (US3-3); 404 palestra inexistente; 400 com e-mail ausente ou inválido; e-mail com caixa/espaços diferentes é aceito; reinscrição depois do cancelamento devolve 201 (US3-4)
+- [X] T038 [P] [US3] Em `T/dominio/ServicoInscricoesTest.java`, casos de `cancelar`: inscrição ativa vira `CANCELADA` com `dataHoraCancelamento`; e-mail normalizado antes da busca; sem inscrição ativa → `InscricaoNaoEncontradaException`; segundo cancelamento → `InscricaoNaoEncontradaException` sem alterar vagas; palestra inexistente → `PalestraNaoEncontradaException`; reinscrição após cancelar cria nova `ATIVA` e mantém a antiga `CANCELADA` (FR-013)
+- [X] T039 [P] [US3] Em `T/api/InscricoesResourceTest.java`, casos de `DELETE /palestras/{id}/inscricoes?email=`: 204 e vagas +1 (US3-1); palestra lotada volta a ter vaga e nova inscrição é aceita (US3-2, SC-005); 404 `Não há inscrição ativa para este e-mail nesta palestra.` sem inscrição e em cancelamento repetido (US3-3); 404 palestra inexistente; 400 com e-mail ausente ou inválido; e-mail com caixa/espaços diferentes é aceito; reinscrição depois do cancelamento devolve 201 (US3-4)
 
 ### Implementação da US3
 
-- [ ] T040 [P] [US3] Criar `B/dominio/excecao/InscricaoNaoEncontradaException.java` (`Não há inscrição ativa para este e-mail nesta palestra.`)
-- [ ] T041 [US3] Em `B/dominio/Inscricao.java`, adicionar `cancelar()` (`ATIVA` → `CANCELADA`, define `dataHoraCancelamento`; estado final)
-- [ ] T042 [US3] Em `B/dominio/ServicoInscricoes.java`, adicionar `cancelar(Long palestraId, String email)`: valida e normaliza o e-mail, bloqueia a palestra com `buscarParaAtualizacao`, busca a inscrição ativa, cancela e salva (depende de T040, T041)
-- [ ] T043 [US3] Em `B/infra/RepositorioInscricoesJpa.java`, garantir que `salvar` atualiza `situacao` e `data_hora_cancelamento` de uma inscrição existente (sem apagar a linha)
-- [ ] T044 [P] [US3] Em `B/api/erro/`, `ExceptionMapper` de `InscricaoNaoEncontradaException` (404)
-- [ ] T045 [US3] Em `B/api/InscricoesResource.java`, adicionar `DELETE /palestras/{id}/inscricoes` com `@QueryParam("email")`, `@Transactional`, 204 em caso de sucesso e 400 para e-mail ausente/inválido (depende de T042, T044)
-- [ ] T046 [US3] **Fechamento da Fase 3**: rodar `./mvnw verify`; exigir `BUILD SUCCESS` com todos os testes das Fases 0–3 verdes
+- [X] T040 [P] [US3] Criar `B/dominio/excecao/InscricaoNaoEncontradaException.java` (`Não há inscrição ativa para este e-mail nesta palestra.`)
+- [X] T041 [US3] Em `B/dominio/Inscricao.java`, adicionar `cancelar()` (`ATIVA` → `CANCELADA`, define `dataHoraCancelamento`; estado final)
+- [X] T042 [US3] Em `B/dominio/ServicoInscricoes.java`, adicionar `cancelar(Long palestraId, String email)`: valida e normaliza o e-mail, bloqueia a palestra com `buscarParaAtualizacao`, busca a inscrição ativa, cancela e salva (depende de T040, T041)
+- [X] T043 [US3] Em `B/infra/RepositorioInscricoesJpa.java`, garantir que `salvar` atualiza `situacao` e `data_hora_cancelamento` de uma inscrição existente (sem apagar a linha)
+- [X] T044 [P] [US3] Em `B/api/erro/`, `ExceptionMapper` de `InscricaoNaoEncontradaException` (404)
+- [X] T045 [US3] Em `B/api/InscricoesResource.java`, adicionar `DELETE /palestras/{id}/inscricoes` com `@QueryParam("email")`, `@Transactional`, 204 em caso de sucesso e 400 para e-mail ausente/inválido (depende de T042, T044)
+- [X] T046 [US3] **Fechamento da Fase 3**: rodar `./mvnw verify`; exigir `BUILD SUCCESS` com todos os testes das Fases 0–3 verdes
 
 **Checkpoint**: as três histórias funcionam juntas e de forma independente.
 
@@ -194,3 +194,16 @@ Task: "DTOs em B/api/dto/ e mapeadores de erro em B/api/erro/"
 - Não adicionar Lombok, MapStruct, Flyway nem camada "application" (Princípio II, research §13).
 - A unicidade da inscrição ativa é garantida pelo lock da palestra, não por índice (o H2 não tem índice parcial).
 - Se um teste falhar no fechamento da fase, corrija antes de avançar; não relaxe as regras do `ArquiteturaTest` para passar.
+
+---
+
+## Phase 5: Convergence
+
+- [ ] T053 Fazer `POST /palestras` devolver o header `Location` relativo `/palestras/{id}` (hoje `getAbsolutePathBuilder` gera URL absoluta) e apertar a asserção em `T/api/PalestrasResourceTest.java` para `equalTo("/palestras/" + id)` usando o `id` do corpo da resposta, em vez de consultar o banco, per contracts/api-rest.md `POST /palestras` e T010 (partial)
+
+---
+
+## Phase 6: Convergence
+
+- [ ] T054 Fazer `POST /palestras` e `POST /palestras/{id}/inscricoes` sem corpo (ou com corpo vazio) responderem 400 `Dados inválidos.` no formato `{ "mensagem", "erros" }` em vez de 500, tratando o `requisicao` nulo nos recursos em `B/api/` (ou com `@NotNull` no parâmetro), e cobrir os dois casos em `T/api/ErrosTest.java` (T047), per FR-014 e SC-004 (partial)
+- [ ] T055 Fazer id de palestra não numérico (`GET /palestras/abc`, `POST`/`DELETE /palestras/abc/inscricoes`) responder no formato `{ "mensagem", "erros" }` em PT-BR (hoje 404 com corpo vazio), com `ExceptionMapper` em `B/api/erro/` e caso em `T/api/ErrosTest.java`, per FR-014 (partial)

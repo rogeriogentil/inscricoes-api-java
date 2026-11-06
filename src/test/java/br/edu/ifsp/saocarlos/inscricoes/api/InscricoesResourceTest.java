@@ -98,4 +98,91 @@ class InscricoesResourceTest {
                 .statusCode(404)
                 .body("mensagem", equalTo("Palestra não encontrada."));
     }
+
+    private static ValidatableResponse cancelar(Object palestraId, String email) {
+        return given().queryParam("email", email)
+                .when().delete("/palestras/{id}/inscricoes", palestraId)
+                .then();
+    }
+
+    @Test
+    void cancelaELiberaUmaVaga() {
+        int id = ApoioApi.criarPalestra(5);
+        inscrever(id, "Maria", "maria@exemplo.com").statusCode(201);
+
+        cancelar(id, "maria@exemplo.com").statusCode(204);
+
+        given().when().get("/palestras/{id}", id).then().body("vagasDisponiveis", equalTo(5));
+    }
+
+    @Test
+    void palestraLotadaVoltaATerVagaAposCancelamento() {
+        int id = ApoioApi.criarPalestra(1);
+        inscrever(id, "Maria", "maria@exemplo.com").statusCode(201);
+        inscrever(id, "João", "joao@exemplo.com").statusCode(409);
+
+        cancelar(id, "maria@exemplo.com").statusCode(204);
+
+        inscrever(id, "João", "joao@exemplo.com").statusCode(201);
+    }
+
+    @Test
+    void cancelarSemInscricaoAtivaDevolve404() {
+        int id = ApoioApi.criarPalestra(5);
+
+        cancelar(id, "maria@exemplo.com")
+                .statusCode(404)
+                .body("mensagem", equalTo("Não há inscrição ativa para este e-mail nesta palestra."));
+    }
+
+    @Test
+    void cancelamentoRepetidoDevolve404SemAlterarAsVagas() {
+        int id = ApoioApi.criarPalestra(5);
+        inscrever(id, "Maria", "maria@exemplo.com").statusCode(201);
+        cancelar(id, "maria@exemplo.com").statusCode(204);
+
+        cancelar(id, "maria@exemplo.com")
+                .statusCode(404)
+                .body("mensagem", equalTo("Não há inscrição ativa para este e-mail nesta palestra."));
+        given().when().get("/palestras/{id}", id).then().body("vagasDisponiveis", equalTo(5));
+    }
+
+    @Test
+    void cancelarEmPalestraInexistenteDevolve404() {
+        cancelar(999, "maria@exemplo.com")
+                .statusCode(404)
+                .body("mensagem", equalTo("Palestra não encontrada."));
+    }
+
+    @Test
+    void cancelarSemEmailOuComEmailInvalidoDevolve400() {
+        int id = ApoioApi.criarPalestra(5);
+
+        given().when().delete("/palestras/{id}/inscricoes", id)
+                .then().statusCode(400)
+                .body("mensagem", equalTo("Dados inválidos."))
+                .body("erros.campo", hasItem("email"));
+        cancelar(id, "invalido")
+                .statusCode(400)
+                .body("erros.campo", hasItem("email"));
+    }
+
+    @Test
+    void cancelamentoAceitaEmailComCaixaEEspacosDiferentes() {
+        int id = ApoioApi.criarPalestra(5);
+        inscrever(id, "Maria", "maria@exemplo.com").statusCode(201);
+
+        cancelar(id, "  MARIA@Exemplo.com ").statusCode(204);
+    }
+
+    @Test
+    void reinscricaoAposCancelamentoDevolve201() {
+        int id = ApoioApi.criarPalestra(1);
+        inscrever(id, "Maria", "maria@exemplo.com").statusCode(201);
+        cancelar(id, "maria@exemplo.com").statusCode(204);
+
+        inscrever(id, "Maria", "maria@exemplo.com").statusCode(201);
+
+        given().when().get("/palestras/{id}", id).then().body("vagasDisponiveis", equalTo(0));
+    }
 }

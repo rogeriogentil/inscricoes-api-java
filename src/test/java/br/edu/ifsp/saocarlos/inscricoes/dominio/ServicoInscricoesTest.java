@@ -1,12 +1,14 @@
 package br.edu.ifsp.saocarlos.inscricoes.dominio;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import br.edu.ifsp.saocarlos.inscricoes.dominio.excecao.DadosInvalidosException;
 import br.edu.ifsp.saocarlos.inscricoes.dominio.excecao.ErroDeCampo;
+import br.edu.ifsp.saocarlos.inscricoes.dominio.excecao.InscricaoNaoEncontradaException;
 import br.edu.ifsp.saocarlos.inscricoes.dominio.excecao.PalestraLotadaException;
 import br.edu.ifsp.saocarlos.inscricoes.dominio.excecao.PalestraNaoEncontradaException;
 import br.edu.ifsp.saocarlos.inscricoes.dominio.excecao.ParticipanteJaInscritoException;
@@ -96,6 +98,78 @@ class ServicoInscricoesTest {
     void rejeitaPalestraInexistente() {
         assertThrows(PalestraNaoEncontradaException.class,
                 () -> servico.inscrever(999L, "Maria", "maria@exemplo.com"));
+    }
+
+    @Test
+    void cancelaInscricaoAtivaRegistrandoADataHora() {
+        Long palestraId = palestraComVagas(2);
+        servico.inscrever(palestraId, "Maria", "maria@exemplo.com");
+
+        Inscricao cancelada = servico.cancelar(palestraId, "maria@exemplo.com");
+
+        assertEquals(SituacaoInscricao.CANCELADA, cancelada.getSituacao());
+        assertNotNull(cancelada.getDataHoraCancelamento());
+        assertEquals(0, inscricoes.contarAtivas(palestraId));
+        assertEquals(1, inscricoes.todas.size());
+        assertEquals(SituacaoInscricao.CANCELADA, inscricoes.todas.get(0).getSituacao());
+    }
+
+    @Test
+    void normalizaOEmailAntesDeBuscarAInscricaoNoCancelamento() {
+        Long palestraId = palestraComVagas(2);
+        servico.inscrever(palestraId, "Maria", "maria@exemplo.com");
+
+        servico.cancelar(palestraId, "  MARIA@Exemplo.com ");
+
+        assertEquals(0, inscricoes.contarAtivas(palestraId));
+    }
+
+    @Test
+    void cancelarSemInscricaoAtivaFalha() {
+        Long palestraId = palestraComVagas(2);
+
+        assertThrows(InscricaoNaoEncontradaException.class, () -> servico.cancelar(palestraId, "maria@exemplo.com"));
+    }
+
+    @Test
+    void segundoCancelamentoFalhaSemAlterarAsVagas() {
+        Long palestraId = palestraComVagas(2);
+        servico.inscrever(palestraId, "Maria", "maria@exemplo.com");
+        servico.inscrever(palestraId, "João", "joao@exemplo.com");
+        servico.cancelar(palestraId, "maria@exemplo.com");
+
+        assertThrows(InscricaoNaoEncontradaException.class, () -> servico.cancelar(palestraId, "maria@exemplo.com"));
+        assertEquals(1, inscricoes.contarAtivas(palestraId));
+    }
+
+    @Test
+    void cancelarEmPalestraInexistenteFalha() {
+        assertThrows(PalestraNaoEncontradaException.class, () -> servico.cancelar(999L, "maria@exemplo.com"));
+    }
+
+    @Test
+    void cancelarComEmailInvalidoFalha() {
+        Long palestraId = palestraComVagas(2);
+
+        DadosInvalidosException excecao =
+                assertThrows(DadosInvalidosException.class, () -> servico.cancelar(palestraId, "invalido"));
+
+        assertEquals(List.of("email"), excecao.getErros().stream().map(ErroDeCampo::campo).toList());
+    }
+
+    @Test
+    void reinscricaoAposCancelarCriaNovaAtivaEMantemAAntigaCancelada() {
+        Long palestraId = palestraComVagas(1);
+        Inscricao primeira = servico.inscrever(palestraId, "Maria", "maria@exemplo.com");
+        servico.cancelar(palestraId, "maria@exemplo.com");
+
+        Inscricao segunda = servico.inscrever(palestraId, "Maria", "maria@exemplo.com");
+
+        assertNotEquals(primeira.getId(), segunda.getId());
+        assertEquals(SituacaoInscricao.ATIVA, segunda.getSituacao());
+        assertEquals(1, inscricoes.contarAtivas(palestraId));
+        assertEquals(List.of(SituacaoInscricao.CANCELADA, SituacaoInscricao.ATIVA),
+                inscricoes.todas.stream().map(Inscricao::getSituacao).toList());
     }
 
     private static class RepositorioPalestrasFalso implements RepositorioPalestras {

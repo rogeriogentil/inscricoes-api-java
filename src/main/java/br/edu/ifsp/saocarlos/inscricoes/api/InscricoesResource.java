@@ -8,10 +8,12 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -29,5 +31,12 @@ public class InscricoesResource {
     public Response inscrever(@PathParam("id") Long palestraId, @Valid NovaInscricaoRequisicao requisicao) {
         Inscricao inscricao = servico.inscrever(palestraId, requisicao.nome(), requisicao.email());
         return Response.status(Response.Status.CREATED).entity(InscricaoResposta.de(inscricao)).build();
+    }
+
+    @DELETE
+    @Transactional
+    public Response cancelar(@PathParam("id") Long palestraId, @QueryParam("email") String email) {
+        servico.cancelar(palestraId, email);
+        return Response.noContent().build();
     }
 }
