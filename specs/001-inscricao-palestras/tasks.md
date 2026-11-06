@@ -199,7 +199,7 @@ Task: "DTOs em B/api/dto/ e mapeadores de erro em B/api/erro/"
 
 ## Phase 5: Convergence
 
-- [ ] T053 Fazer `POST /palestras` devolver o header `Location` relativo `/palestras/{id}` (hoje `getAbsolutePathBuilder` gera URL absoluta) e apertar a asserção em `T/api/PalestrasResourceTest.java` para `equalTo("/palestras/" + id)` usando o `id` do corpo da resposta, em vez de consultar o banco, per contracts/api-rest.md `POST /palestras` e T010 (partial)
+- [X] T053 Fazer `POST /palestras` devolver o header `Location` relativo `/palestras/{id}` (hoje `getAbsolutePathBuilder` gera URL absoluta) e apertar a asserção em `T/api/PalestrasResourceTest.java` para `equalTo("/palestras/" + id)` usando o `id` do corpo da resposta, em vez de consultar o banco, per contracts/api-rest.md `POST /palestras` e T010 (partial)
 
 ---
 

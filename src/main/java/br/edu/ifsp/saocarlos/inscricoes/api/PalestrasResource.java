@@ -17,6 +17,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
@@ -39,7 +40,9 @@ public class PalestrasResource {
     public Response criar(@Valid @NotNull(message = "Corpo da requisição é obrigatório.") NovaPalestraRequisicao requisicao, @Context UriInfo uriInfo) {
         Palestra palestra = palestras.salvar(
                 Palestra.criar(requisicao.titulo(), requisicao.descricao(), requisicao.totalVagas()));
-        return Response.created(uriInfo.getAbsolutePathBuilder().path(String.valueOf(palestra.getId())).build())
+        // Location relativo, como no contrato; Response.created() o converteria em URL absoluta.
+        return Response.status(Response.Status.CREATED)
+                .header(HttpHeaders.LOCATION, uriInfo.getAbsolutePath().getRawPath() + "/" + palestra.getId())
                 .entity(PalestraResposta.de(palestra, 0))
                 .build();
     }

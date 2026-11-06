@@ -1,9 +1,9 @@
 package br.edu.ifsp.saocarlos.inscricoes.api;
 
 import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
@@ -15,6 +15,7 @@ import br.edu.ifsp.saocarlos.inscricoes.infra.PalestraEntidade;
 import io.quarkus.narayana.jta.QuarkusTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
@@ -66,21 +67,18 @@ class PalestrasResourceTest {
 
     @Test
     void criaPalestraValida() {
-        given().contentType(ContentType.JSON).body(palestraValida(50))
+        Response resposta = given().contentType(ContentType.JSON).body(palestraValida(50))
                 .when().post("/palestras")
                 .then()
                 .statusCode(201)
-                .header("Location", endsWith("/palestras/" + obterUltimoId()))
                 .body("id", notNullValue())
                 .body("titulo", equalTo("Quarkus na prática"))
                 .body("descricao", equalTo("Introdução ao Quarkus"))
                 .body("totalVagas", equalTo(50))
-                .body("vagasDisponiveis", equalTo(50));
-    }
+                .body("vagasDisponiveis", equalTo(50))
+                .extract().response();
 
-    private long obterUltimoId() {
-        return QuarkusTransaction.requiringNew().call(() ->
-                entityManager.createQuery("select max(p.id) from PalestraEntidade p", Long.class).getSingleResult());
+        assertEquals("/palestras/" + resposta.path("id"), resposta.header("Location"));
     }
 
     @Test
